@@ -1,0 +1,11 @@
+---
+description: Yazar değerini yerleştiren herkese açık yorum listesi metinleri.
+generated: true
+examples:
+  byline:
+    expected: Grace tarafından yorum
+    values:
+      author: Grace
+---
+empty: Henüz yorum yok.
+byline: "{author} tarafından yorum"

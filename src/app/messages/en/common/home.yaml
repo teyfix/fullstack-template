@@ -1,0 +1,9 @@
+---
+description: Non-deletable template home page copy.
+generated: true
+---
+title: A deletion-safe full-stack template
+description: Features own their routes, data contracts, translations, and persistence assets. Remove a feature folder, synchronize the registries, and its application surface disappears.
+cardTitle: Composition over cross-feature imports
+cardDescription: The application shell discovers contributions and wires narrow contracts at explicit integration boundaries.
+cardBody: Explore the included removable features, then delete one to verify that the remaining template still builds.

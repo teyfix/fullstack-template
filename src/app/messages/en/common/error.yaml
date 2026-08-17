@@ -1,0 +1,7 @@
+---
+description: Safe global unexpected-error fallback.
+generated: true
+---
+title: Something went wrong
+description: The page could not be loaded. You can safely try again.
+retry: Try again

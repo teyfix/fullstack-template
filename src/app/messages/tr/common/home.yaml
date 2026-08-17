@@ -1,0 +1,9 @@
+---
+description: Silinemez şablon ana sayfası metni.
+generated: true
+---
+title: Güvenle özellik silinebilen tam kapsamlı şablon
+description: Özellikler rotalarını, veri sözleşmelerini, çevirilerini ve kalıcılık varlıklarını kendileri yönetir. Bir özellik klasörünü kaldırıp kayıtları eşzamanladığınızda uygulama yüzeyi de kaybolur.
+cardTitle: Özellikler arası içe aktarımlar yerine bileşim
+cardDescription: Uygulama kabuğu katkıları keşfeder ve dar sözleşmeleri açık entegrasyon sınırlarında bağlar.
+cardBody: Dahil edilen kaldırılabilir özellikleri inceleyin, ardından kalan şablonun hâlâ derlendiğini doğrulamak için birini silin.

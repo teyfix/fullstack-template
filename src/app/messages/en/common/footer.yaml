@@ -1,0 +1,10 @@
+---
+description: Application footer copy with an interpolated application name.
+generated: true
+examples:
+  description:
+    expected: Journal is a feature-oriented Solid application template.
+    values:
+      appName: Journal
+---
+description: "{appName} is a feature-oriented Solid application template."

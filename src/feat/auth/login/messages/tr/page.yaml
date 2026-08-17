@@ -1,0 +1,21 @@
+---
+description: Çalıştırılabilir ICU örnekleri içeren misafir giriş sayfası metinleri.
+generated: true
+examples:
+  greeting:
+    expected: Tekrar hoş geldin, Ada.
+    values:
+      gender: female
+      name: Ada
+  attempts:
+    expected: 2 deneme kaldı.
+    values:
+      count: 2
+---
+title: Giriş yap
+description: Hesabınla güvenli bir şekilde devam et.
+greeting: "{gender, select, female {Tekrar hoş geldin, {name}.} male {Tekrar hoş geldin, {name}.} other {Hoş geldin, {name}.}}"
+attempts: "{count, plural, =0 {Deneme hakkı kalmadı.} one {{count} deneme kaldı.} other {{count} deneme kaldı.}}"
+emailLabel: E-posta
+passwordLabel: Parola
+submit: Devam et

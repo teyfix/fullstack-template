@@ -1,0 +1,15 @@
+---
+description: Public blog list copy with pluralization.
+generated: true
+examples:
+  resultCount:
+    expected: 3 posts
+    values:
+      count: 3
+---
+title: Journal
+description: Notes about building software that stays easy to change.
+empty: No published posts yet.
+resultCount: "{count, plural, =0 {No posts} one {{count} post} other {{count} posts}}"
+read: Read post
+loading: Loading posts

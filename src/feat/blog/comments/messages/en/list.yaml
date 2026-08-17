@@ -1,0 +1,11 @@
+---
+description: Public comment list copy with author interpolation.
+generated: true
+examples:
+  byline:
+    expected: Comment by Grace
+    values:
+      author: Grace
+---
+empty: No comments yet.
+byline: Comment by {author}

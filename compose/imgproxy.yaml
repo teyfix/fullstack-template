@@ -1,0 +1,44 @@
+x-healthcheck: &healthcheck
+  interval: 30s
+  timeout: 5s
+  retries: 15
+  start_period: 3s
+  start_interval: 1s
+
+services:
+  imgproxy:
+    image: ${IMGPROXY_IMAGE:?}
+    restart: unless-stopped
+    environment:
+      AWS_ACCESS_KEY_ID: ${S3_ACCESS_KEY:?}
+      AWS_SECRET_ACCESS_KEY: ${S3_SECRET_KEY:?}
+      IMGPROXY_ALLOWED_SOURCES: "s3://${S3_BUCKET:?}/"
+      IMGPROXY_KEY: ${IMGPROXY_KEY:?}
+      IMGPROXY_S3_ALLOWED_BUCKETS: ${S3_BUCKET:?}
+      IMGPROXY_S3_ENDPOINT: http://s3.lokal:9000
+      IMGPROXY_S3_ENDPOINT_USE_PATH_STYLE: "true"
+      IMGPROXY_S3_REGION: ${S3_REGION:?}
+      IMGPROXY_SALT: ${IMGPROXY_SALT:?}
+      IMGPROXY_USE_S3: "true"
+    expose: [8080]
+    networks:
+      net-minio:
+      traefik:
+    depends_on:
+      minio: { condition: service_healthy }
+      minio-init: { condition: service_completed_successfully }
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=traefik_proxy"
+      - "traefik.http.services.${APP_NAME:?}_imgproxy.loadbalancer.server.port=8080"
+      - "traefik.http.routers.${APP_NAME:?}_imgproxy.rule=Host(`imgproxy.${APP_DOMAIN:?}`)"
+      - "traefik.http.routers.${APP_NAME:?}_imgproxy.entrypoints=websecure"
+      - "traefik.http.routers.${APP_NAME:?}_imgproxy.tls=true"
+      - "traefik.http.routers.${APP_NAME:?}_imgproxy.tls.certresolver=stepca"
+      - "traefik.http.routers.${APP_NAME:?}_imgproxy.service=${APP_NAME:?}_imgproxy"
+    deploy:
+      resources:
+        limits: { cpus: "1", memory: 512M }
+    healthcheck:
+      <<: *healthcheck
+      test: [CMD, imgproxy, health]

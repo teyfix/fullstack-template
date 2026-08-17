@@ -1,0 +1,63 @@
+x-healthcheck: &healthcheck
+  interval: 30s
+  timeout: 5s
+  retries: 15
+  start_period: 3s
+  start_interval: 1s
+
+volumes:
+  minio_data:
+
+networks:
+  net-minio:
+
+services:
+  minio:
+    image: ${MINIO_IMAGE:?}
+    command: [server, /data, --console-address, ":9001"]
+    restart: unless-stopped
+    environment:
+      MINIO_ROOT_USER: ${S3_ACCESS_KEY:?}
+      MINIO_ROOT_PASSWORD: ${S3_SECRET_KEY:?}
+      MINIO_BROWSER_REDIRECT: false
+    expose: [9000, 9001]
+    networks:
+      traefik:
+      net-minio: { aliases: [s3.lokal] }
+    volumes:
+      - minio_data:/data
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=traefik_proxy"
+      - "traefik.http.services.${APP_NAME:?}_s3.loadbalancer.server.port=9000"
+      - "traefik.http.routers.${APP_NAME:?}_s3.rule=Host(`s3.${APP_DOMAIN:?}`)"
+      - "traefik.http.routers.${APP_NAME:?}_s3.entrypoints=websecure"
+      - "traefik.http.routers.${APP_NAME:?}_s3.tls=true"
+      - "traefik.http.routers.${APP_NAME:?}_s3.tls.certresolver=stepca"
+      - "traefik.http.services.${APP_NAME:?}_minio.loadbalancer.server.port=9001"
+      - "traefik.http.routers.${APP_NAME:?}_minio.rule=Host(`minio.${APP_DOMAIN:?}`)"
+      - "traefik.http.routers.${APP_NAME:?}_minio.entrypoints=websecure"
+      - "traefik.http.routers.${APP_NAME:?}_minio.tls=true"
+      - "traefik.http.routers.${APP_NAME:?}_minio.tls.certresolver=stepca"
+    deploy:
+      resources:
+        limits: { cpus: "1", memory: 512M }
+    healthcheck:
+      <<: *healthcheck
+      test: [CMD, mc, ready, local]
+
+  minio-init:
+    image: ${MINIO_IMAGE:?}
+    restart: no
+    entrypoint: /bin/sh
+    command:
+      - -c
+      - |-
+        set -e
+        mc alias set s3 http://s3.lokal:9000 ${S3_ACCESS_KEY:?} ${S3_SECRET_KEY:?}
+        mc mb --ignore-existing --with-lock s3/${S3_BUCKET:?}
+        mc mb --ignore-existing --with-lock s3/public
+        mc anonymous set public s3/public
+    networks: [net-minio]
+    depends_on:
+      minio: { condition: service_healthy }

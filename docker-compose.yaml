@@ -1,0 +1,13 @@
+name: ${APP_NAME:?}
+
+networks:
+  traefik:
+    name: traefik_proxy
+    external: true
+
+include:
+  - compose/app.yaml
+  - compose/imgproxy.yaml
+  - compose/minio.yaml
+  - compose/postgres.yaml
+  - compose/redis.yaml

@@ -1,0 +1,2 @@
+"{{ getenv "POSTGRES_USER" }}" "{{ getenv "POSTGRES_PASSWORD" }}"
+"{{ getenv "PGBOUNCER_USER" }}" "{{ getenv "PGBOUNCER_PASS" }}"

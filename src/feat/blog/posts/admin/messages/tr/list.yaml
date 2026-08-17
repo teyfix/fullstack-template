@@ -1,0 +1,14 @@
+---
+description: Yazı yönetimi metinleri.
+generated: true
+---
+title: Yazılar
+description: Günlük yazılarını taslak olarak hazırla, yayımla ve arşivle.
+create: Yeni yazı
+titleLabel: Başlık
+slugLabel: Kısa ad
+excerptLabel: Özet
+bodyLabel: İçerik
+submit: Taslağı kaydet
+saved: Taslak kaydedildi.
+loading: Yazı düzenleyici yükleniyor

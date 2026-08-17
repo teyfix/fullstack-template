@@ -1,0 +1,21 @@
+---
+description: Guest sign-in page copy with executable ICU examples.
+generated: true
+examples:
+  greeting:
+    expected: Welcome back, Ada.
+    values:
+      gender: female
+      name: Ada
+  attempts:
+    expected: 2 attempts remain.
+    values:
+      count: 2
+---
+title: Sign in
+description: Continue securely with your account.
+greeting: "{gender, select, female {Welcome back, {name}.} male {Welcome back, {name}.} other {Welcome, {name}.}}"
+attempts: "{count, plural, =0 {No attempts remain.} one {{count} attempt remains.} other {{count} attempts remain.}}"
+emailLabel: Email
+passwordLabel: Password
+submit: Continue

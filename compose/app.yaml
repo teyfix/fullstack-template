@@ -1,0 +1,74 @@
+x-healthcheck: &healthcheck
+  interval: 30s
+  timeout: 5s
+  retries: 15
+  start_period: 3s
+  start_interval: 1s
+
+secrets:
+  app_env:
+    file: ${APP_ENV_FILE:-${PWD}/.env}
+
+x-app-build: &app-build
+  context: ${PWD}
+  additional_contexts:
+    drizzle: ${PWD}/../drizzle
+  dockerfile: ${PWD}/Dockerfile.bun
+  args:
+    BUN_IMAGE: ${BUN_IMAGE:?}
+    VITE_APP_NAME: ${VITE_APP_NAME:?}
+
+services:
+  migrate:
+    build:
+      <<: *app-build
+      target: source
+    command: [bun, run, db:prepare]
+    restart: no
+    env_file:
+      - ${APP_ENV_FILE:-${PWD}/.env}
+    environment:
+      POSTGRES_ADMIN_URL: "postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres.lokal:5432/${POSTGRES_DB}"
+      POSTGRES_URL: "postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres.lokal:5432/${POSTGRES_DB}"
+    networks: [net-postgres]
+    depends_on:
+      postgres: { condition: service_healthy }
+
+  app:
+    image: ${APP_IMAGE:?}
+    build:
+      <<: *app-build
+      secrets: [app_env]
+    restart: unless-stopped
+    env_file:
+      - ${APP_ENV_FILE:-${PWD}/.env}
+    environment:
+      POSTGRES_URL: "postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@pgbouncer.lokal:5432/${POSTGRES_DB}"
+      REDIS_URL: "redis://redis.lokal:6379"
+      S3_ENDPOINT: http://s3.lokal:9000
+    expose: [3000]
+    networks:
+      traefik:
+      net-minio:
+      net-pgbouncer:
+      net-redis:
+    depends_on:
+      migrate: { condition: service_completed_successfully }
+      minio: { condition: service_healthy }
+      minio-init: { condition: service_completed_successfully }
+      pgbouncer: { condition: service_healthy }
+      redis: { condition: service_healthy }
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=traefik_proxy"
+      - "traefik.http.services.${APP_NAME:?}_app.loadbalancer.server.port=3000"
+      - "traefik.http.routers.${APP_NAME:?}_app.rule=Host(`${APP_DOMAIN:?}`)"
+      - "traefik.http.routers.${APP_NAME:?}_app.entrypoints=websecure"
+      - "traefik.http.routers.${APP_NAME:?}_app.tls=true"
+      - "traefik.http.routers.${APP_NAME:?}_app.tls.certresolver=stepca"
+    deploy:
+      resources:
+        limits: { cpus: "1", memory: 1G }
+    healthcheck:
+      <<: *healthcheck
+      test: [CMD, wget, -q, --spider, http://localhost:3000]

@@ -1,0 +1,31 @@
+pre-commit:
+  commands:
+    biome:
+      glob: "*.{cjs,cts,js,jsx,mjs,mts,ts,tsx}"
+      run: bun x biome check --write --unsafe --no-errors-on-unmatched {staged_files}
+      stage_fixed: true
+    prettier:
+      glob: "*.{json,md,sh,sql,yaml,yml}"
+      run: bun x prettier --write {staged_files}
+      stage_fixed: true
+    tests:
+      run: bun run test
+
+commit-msg:
+  commands:
+    commitlint:
+      run: bun run commitlint --edit {1}
+
+pre-push:
+  parallel: true
+  commands:
+    format-check:
+      run: bun run format:check
+    typecheck:
+      run: bun run typecheck
+    tests:
+      run: bun run test
+    infrastructure:
+      run: bun run infra:check
+    migrations:
+      run: bun run db:check

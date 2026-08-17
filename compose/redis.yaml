@@ -1,0 +1,38 @@
+x-healthcheck: &healthcheck
+  interval: 30s
+  timeout: 5s
+  retries: 15
+  start_period: 3s
+  start_interval: 1s
+
+volumes:
+  redis_data:
+
+networks:
+  net-redis:
+
+services:
+  redis:
+    image: ${REDIS_IMAGE:?}
+    command: [redis-server, --save, "60", "1", --loglevel, warning]
+    restart: unless-stopped
+    expose: [6379]
+    networks:
+      traefik:
+      net-redis: { aliases: [redis.lokal] }
+    volumes:
+      - redis_data:/data
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=traefik_proxy"
+      - "traefik.tcp.services.${APP_NAME:?}_redis.loadbalancer.server.port=6379"
+      - "traefik.tcp.routers.${APP_NAME:?}_redis.rule=HostSNI(`redis.${APP_DOMAIN:?}`)"
+      - "traefik.tcp.routers.${APP_NAME:?}_redis.entrypoints=shared"
+      - "traefik.tcp.routers.${APP_NAME:?}_redis.tls=true"
+      - "traefik.tcp.routers.${APP_NAME:?}_redis.tls.certresolver=stepca"
+    deploy:
+      resources:
+        limits: { cpus: "0.5", memory: 256M }
+    healthcheck:
+      <<: *healthcheck
+      test: [CMD, redis-cli, ping]

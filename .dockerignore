@@ -1,0 +1,8 @@
+.git
+**/.env
+**/.next
+**/.output
+**/.tanstack
+**/node_modules
+messages/*.json
+src/app/paraglide

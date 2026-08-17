@@ -1,0 +1,15 @@
+.env
+.env.*
+!.env.example
+.output/
+.tanstack/
+coverage/
+messages/*.json
+node_modules/
+src/app/paraglide/
+src/app/features.generated.ts
+src/app/navigation.generated.ts
+src/app/profile-sections.generated.ts
+src/app/routes.generated.ts
+src/app/seeds.generated.ts
+src/routeTree.gen.ts

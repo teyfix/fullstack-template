@@ -1,0 +1,7 @@
+{
+  "$schema": "https://unpkg.com/@tanstack/router-cli@1.167.30/schema.json",
+  "generatedRouteTree": "./src/routeTree.gen.ts",
+  "routesDirectory": "./src",
+  "target": "solid",
+  "virtualRouteConfig": "./src/app/routes.generated.ts"
+}

@@ -1,0 +1,15 @@
+---
+description: Çoğul biçimli herkese açık blog listesi metinleri.
+generated: true
+examples:
+  resultCount:
+    expected: 3 yazı
+    values:
+      count: 3
+---
+title: Günlük
+description: Değiştirmesi kolay yazılımlar geliştirmek üzerine notlar.
+empty: Henüz yayımlanmış yazı yok.
+resultCount: "{count, plural, =0 {Yazı yok} one {{count} yazı} other {{count} yazı}}"
+read: Yazıyı oku
+loading: Yazılar yükleniyor

@@ -1,0 +1,10 @@
+---
+description: Uygulama adı eklenen uygulama alt bilgisi metni.
+generated: true
+examples:
+  description:
+    expected: Journal, özellik odaklı bir Solid uygulama şablonudur.
+    values:
+      appName: Journal
+---
+description: "{appName}, özellik odaklı bir Solid uygulama şablonudur."

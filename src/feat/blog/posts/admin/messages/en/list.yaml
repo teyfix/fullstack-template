@@ -1,0 +1,14 @@
+---
+description: Post administration copy.
+generated: true
+---
+title: Posts
+description: Draft, publish, and archive journal posts.
+create: New post
+titleLabel: Title
+slugLabel: Slug
+excerptLabel: Excerpt
+bodyLabel: Body
+submit: Save draft
+saved: Draft saved.
+loading: Loading post editor

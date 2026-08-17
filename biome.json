@@ -1,0 +1,50 @@
+{
+  "$schema": "https://biomejs.dev/schemas/2.5.8/schema.json",
+  "files": {
+    "includes": [
+      "**/*.{cjs,cts,js,jsx,mjs,mts,ts,tsx}",
+      "!**/.next",
+      "!**/.output",
+      "!**/.tanstack",
+      "!**/node_modules",
+      "!**/*.generated.ts",
+      "!**/*.generated.tsx",
+      "!src/app/paraglide",
+      "!src/routeTree.gen.ts"
+    ]
+  },
+  "formatter": { "enabled": true, "indentStyle": "space", "lineWidth": 80 },
+  "javascript": {
+    "formatter": {
+      "quoteStyle": "double",
+      "semicolons": "always",
+      "trailingCommas": "all"
+    }
+  },
+  "linter": {
+    "enabled": true,
+    "rules": {
+      "nursery": {
+        "useSortedClasses": {
+          "level": "error",
+          "options": {
+            "functions": ["classed", "clsx", "cn", "cva", "twMerge"]
+          }
+        }
+      },
+      "preset": "recommended",
+      "style": {
+        "noRestrictedImports": {
+          "level": "error",
+          "options": {
+            "paths": {
+              "@tw-classed/react": "React-only package; use the local Solid UI primitives with cn/cva."
+            }
+          }
+        },
+        "useNodejsImportProtocol": { "fix": "safe", "level": "error" }
+      },
+      "suspicious": { "noThenProperty": "off" }
+    }
+  }
+}
