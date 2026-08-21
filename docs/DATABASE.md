@@ -15,14 +15,13 @@
 ## Package boundary
 
 Generic Drizzle expressions, PostgreSQL column conventions, renderers, and Zod
-wire codecs live in the sibling [`@teyfix/drizzle`](../../drizzle/README.md)
+wire codecs live in the [`@teyfix/drizzle`](https://github.com/teyfix/drizzle)
 repository. This template consumes explicit subpaths such as
 `@teyfix/drizzle/pg` and `@teyfix/drizzle/render`; it does not maintain another
 copy or re-export native Drizzle APIs.
 
-The intended remote is `github.com/teyfix/drizzle`, but the package is currently
-a local `file:../drizzle` dependency until that repository and package are
-published.
+The dependency pins the versioned GitHub tag `v0.1.0` so installs are
+reproducible and do not depend on a sibling checkout.
 
 ## Schemas
 
@@ -128,9 +127,9 @@ and an explicit reviewable name. Commit the generated `migration.sql` and
 Drizzle-owned and are excluded from Prettier.
 
 `drizzle/migrations.test.ts` applies every committed migration twice to an
-in-memory PGlite database. It runs in Vitest's Node environment only because
-the pinned PGlite/Bun combination exits with status 99 after otherwise clean
-execution; production database access remains Bun-native.
+in-memory PGlite database. Vitest executes through Bun 1.4 and selects its
+non-DOM `node` environment for this file; the environment name does not make
+Node.js the runtime. Production database access remains Bun-native.
 
 Deleting `src/feat/blog` removes its suffix-discovered tables/views from Drizzle
 Kit input. `bun run db:generate remove_blog` turns that source change into an

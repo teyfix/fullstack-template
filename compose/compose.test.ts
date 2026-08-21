@@ -31,11 +31,9 @@ describe("Compose boundaries", () => {
     expect(compose.services.app?.networks).not.toHaveProperty("net-postgres");
   });
 
-  test("gives the local build an explicit standalone Drizzle context", async () => {
+  test("keeps the application build independent of sibling contexts", async () => {
     const compose = await readCompose("app.yaml");
-    expect(compose.services.app?.build?.additional_contexts).toEqual({
-      drizzle: ["$", "{PWD}/../drizzle"].join(""),
-    });
+    expect(compose.services.app?.build?.additional_contexts).toBeUndefined();
   });
 
   test("enables protocol-level prepared statements in transaction pooling", async () => {

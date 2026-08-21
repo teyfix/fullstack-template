@@ -11,8 +11,6 @@ secrets:
 
 x-app-build: &app-build
   context: ${PWD}
-  additional_contexts:
-    drizzle: ${PWD}/../drizzle
   dockerfile: ${PWD}/Dockerfile.bun
   args:
     BUN_IMAGE: ${BUN_IMAGE:?}

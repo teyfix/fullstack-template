@@ -8,11 +8,6 @@ import {
   buildFeatureMessageFiles,
   classifyAppMessageAsset,
   discoverAppMessageAssets,
-  loadFeatureMessageCatalogs,
-  parseFeatureMessageFile,
-  renderFeatureMessagesJson,
-  validateFeatureMessageExamples,
-  validateFeatureMessageParity,
 } from "./feature-messages";
 
 const temporaryDirectories: string[] = [];
@@ -45,99 +40,7 @@ afterEach(async () => {
   );
 });
 
-describe("parseFeatureMessageFile", () => {
-  test("keeps front matter as metadata and the second document as messages", () => {
-    expect(
-      parseFeatureMessageFile(
-        "blog/posts/messages/en/list.yaml",
-        `---
-description: Blog post list copy.
-generated: true
-examples:
-  count:
-    expected: You have 2 posts
-    values:
-      count: 2
----
-title: Posts
-count: "You have {count} posts"
-`,
-      ),
-    ).toEqual({
-      messages: { count: "You have {count} posts", title: "Posts" },
-      metadata: {
-        description: "Blog post list copy.",
-        examples: {
-          count: { expected: "You have 2 posts", values: { count: 2 } },
-        },
-        generated: true,
-      },
-    });
-  });
-
-  test("rejects files without exactly two documents", () => {
-    expect(() =>
-      parseFeatureMessageFile("messages/en/list.yaml", "title: Posts\n"),
-    ).toThrow("metadata front matter");
-    expect(() =>
-      parseFeatureMessageFile(
-        "messages/en/list.yaml",
-        "---\ndescription: Copy.\ngenerated: true\nowner: blog\n---\ntitle: Posts\n",
-      ),
-    ).toThrow();
-  });
-
-  test("executes ICU plural and gender/select examples", () => {
-    const parsed = parseFeatureMessageFile(
-      "blog/posts/messages/en/detail.yaml",
-      `---
-description: Executable ICU examples.
-generated: true
-examples:
-  author:
-    expected: She wrote this
-    values:
-      gender: female
-  comments:
-    expected: 2 comments
-    values:
-      count: 2
----
-author: "{gender, select, male {He wrote this} female {She wrote this} other {They wrote this}}"
-comments: "{count, plural, one {# comment} other {# comments}}"
-`,
-    );
-
-    expect(() =>
-      validateFeatureMessageExamples(
-        "en",
-        "blog.posts.detail",
-        "blog/posts/messages/en/detail.yaml",
-        parsed,
-      ),
-    ).not.toThrow();
-  });
-
-  test("rejects examples for absent keys or incorrect output", () => {
-    const absent = parseFeatureMessageFile(
-      "messages/en/list.yaml",
-      "---\ndescription: Missing key.\ngenerated: true\nexamples:\n  missing:\n    expected: Missing\n    values: {}\n---\ntitle: Posts\n",
-    );
-    expect(() =>
-      validateFeatureMessageExamples("en", "blog.list", "list.yaml", absent),
-    ).toThrow("does not reference a message");
-
-    const wrong = parseFeatureMessageFile(
-      "messages/en/list.yaml",
-      "---\ndescription: Wrong output.\ngenerated: true\nexamples:\n  title:\n    expected: Articles\n    values: {}\n---\ntitle: Posts\n",
-    );
-    expect(() =>
-      validateFeatureMessageExamples("en", "blog.list", "list.yaml", wrong),
-    ).toThrow("rendered");
-  });
-});
-
-describe("app message discovery", () => {
+describe("application message discovery", () => {
   test("derives namespaces from the path after the locale", async () => {
     expect(classifyAppMessageAsset("en/common/header.yaml")).toEqual({
       kind: "app-message",
@@ -178,49 +81,30 @@ describe("app message discovery", () => {
     ]);
   });
 
-  test("applies strict metadata and executable ICU examples", async () => {
+  test("allows an application without an app-message directory", async () => {
     const root = await temporaryDirectory();
-    await fixture(
-      root,
-      "en/common/header.yaml",
-      `---
-description: Invalid executable example.
-generated: true
-examples:
-  greeting:
-    expected: Hello Ada
-    values:
-      name: Grace
----
-greeting: "Hello {name}"
-`,
-    );
 
-    await expect(
-      loadFeatureMessageCatalogs({
-        appMessagesDirectory: root,
-        assets: [],
-        featuresDirectory: join(root, "features"),
-      }),
-    ).rejects.toThrow("rendered");
+    expect(
+      await discoverAppMessageAssets(join(root, "missing-messages")),
+    ).toEqual([]);
   });
 });
 
-describe("feature message catalogs", () => {
-  test("builds deterministic dotted locale JSON from namespace paths", async () => {
-    const root = await temporaryDirectory();
+describe("message compiler adapter", () => {
+  test("combines application and feature assets through the shared compiler", async () => {
+    const featureRoot = await temporaryDirectory();
     const appRoot = await temporaryDirectory();
     const englishPath = "blog/posts/messages/en/list.yaml";
     const turkishPath = "blog/posts/messages/tr/list.yaml";
     await fixture(
-      root,
+      featureRoot,
       englishPath,
-      "---\ndescription: English posts.\ngenerated: true\n---\ntitle: Posts\nempty: No posts\n",
+      "---\ndescription: English posts.\ngenerated: true\n---\ntitle: Posts\n",
     );
     await fixture(
-      root,
+      featureRoot,
       turkishPath,
-      "---\ndescription: Turkish posts.\ngenerated: true\n---\nempty: Gönderi yok\ntitle: Gönderiler\n",
+      "---\ndescription: Turkish posts.\ngenerated: true\n---\ntitle: Gönderiler\n",
     );
     await fixture(
       appRoot,
@@ -232,94 +116,18 @@ describe("feature message catalogs", () => {
       "tr/common/header.yaml",
       "---\ndescription: Turkish header.\ngenerated: true\n---\ntitle: Uygulama\n",
     );
-    const assets = [
-      message(turkishPath, "tr", "blog.posts.list"),
-      message(englishPath, "en", "blog.posts.list"),
-    ];
-
-    const catalogs = await loadFeatureMessageCatalogs({
-      appMessagesDirectory: appRoot,
-      assets,
-      featuresDirectory: root,
-    });
-    expect(catalogs.en).toEqual({
-      blog: { posts: { list: { empty: "No posts", title: "Posts" } } },
-      common: { header: { title: "Application" } },
-    });
 
     const files = await buildFeatureMessageFiles({
       appMessagesDirectory: appRoot,
-      assets,
-      featuresDirectory: root,
+      assets: [
+        message(turkishPath, "tr", "blog.posts.list"),
+        message(englishPath, "en", "blog.posts.list"),
+      ],
+      featuresDirectory: featureRoot,
     });
+
     expect(Object.keys(files)).toEqual(["en.json", "tr.json"]);
-    expect(files["en.json"]).toBe(renderFeatureMessagesJson(catalogs.en ?? {}));
     expect(files["en.json"]).toContain('"blog.posts.list.title": "Posts"');
     expect(files["en.json"]).toContain('"common.header.title": "Application"');
-    expect(files["en.json"]).not.toContain('"blog": {');
-  });
-
-  test("rejects locale drift and overlapping namespace files", async () => {
-    expect(() =>
-      validateFeatureMessageParity({
-        en: { blog: { title: "Blog" } },
-        tr: { blog: { heading: "Blog" } },
-      }),
-    ).toThrow("tr message keys do not match en");
-
-    const root = await temporaryDirectory();
-    const parent = "blog/messages/en/posts.yaml";
-    const child = "blog/messages/en/posts/list.yaml";
-    await fixture(
-      root,
-      parent,
-      "---\ndescription: Parent.\ngenerated: true\n---\ntitle: Posts\n",
-    );
-    await fixture(
-      root,
-      child,
-      "---\ndescription: Child.\ngenerated: true\n---\ntitle: Posts\n",
-    );
-    await expect(
-      loadFeatureMessageCatalogs({
-        assets: [
-          message(parent, "en", "blog.posts"),
-          message(child, "en", "blog.posts.list"),
-        ],
-        featuresDirectory: root,
-      }),
-    ).rejects.toThrow("overlaps");
-  });
-
-  test("rejects app and feature namespace overlap across locales", async () => {
-    const featureRoot = await temporaryDirectory();
-    const appRoot = await temporaryDirectory();
-    const featurePath = "blog/posts/messages/en/list.yaml";
-    await fixture(
-      featureRoot,
-      featurePath,
-      "---\ndescription: Posts.\ngenerated: true\n---\ntitle: Posts\n",
-    );
-    await fixture(
-      appRoot,
-      "tr/blog/posts.yaml",
-      "---\ndescription: Wrong app ownership.\ngenerated: true\n---\ntitle: Gönderiler\n",
-    );
-
-    await expect(
-      loadFeatureMessageCatalogs({
-        appMessagesDirectory: appRoot,
-        assets: [message(featurePath, "en", "blog.posts.list")],
-        featuresDirectory: featureRoot,
-      }),
-    ).rejects.toThrow(
-      "App message namespace blog.posts overlaps feature message namespace blog.posts.list",
-    );
-  });
-
-  test("rejects non-string leaves unsupported by the ICU1 storage plugin", () => {
-    expect(() =>
-      renderFeatureMessagesJson({ blog: { count: ["not", "icu"] } }),
-    ).toThrow("must be an ICU MessageFormat string");
   });
 });

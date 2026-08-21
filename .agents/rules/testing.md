@@ -21,7 +21,7 @@ description: Colocated test ownership, SQL fixtures, UI tests, and verification.
 
 - Bun owns `.test.ts` unit, schema, discovery, server, and SQL rendering tests.
 - Vitest plus Solid Testing Library owns `.test.tsx` DOM interaction and accessibility tests.
-- `drizzle/migrations.test.ts` is the one Node-environment Vitest exception: PGlite 0.5.5 exits Bun 1.3.14 with status 99 after a clean shutdown.
+- Vitest runs through Bun 1.4 for Solid DOM tests and the PGlite migration test. The migration file selects Vitest's non-DOM `node` environment, but Node.js is not an allowed runtime.
 - Prefer roles, accessible names, state, and user interaction. If structural CSS matching is necessary, use a DOM selector/matcher rather than an exact `class="..."` serialization.
 - Never expose secrets or internal exception messages in boundary snapshots/assertions.
 
