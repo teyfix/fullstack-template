@@ -36,6 +36,17 @@ describe("Compose boundaries", () => {
     expect(compose.services.app?.build?.additional_contexts).toBeUndefined();
   });
 
+  test("probes the Bun application over IPv4 in Alpine", async () => {
+    const compose = await readCompose("app.yaml");
+    expect(compose.services.app?.healthcheck?.test).toEqual([
+      "CMD",
+      "wget",
+      "-q",
+      "--spider",
+      "http://127.0.0.1:3000",
+    ]);
+  });
+
   test("enables protocol-level prepared statements in transaction pooling", async () => {
     const compose = await readCompose("postgres.yaml");
     expect(compose.services.pgbouncer?.healthcheck?.test).toContain(
