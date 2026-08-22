@@ -19,9 +19,9 @@ describe("createImgproxyBackend", () => {
       width: 800,
     });
 
-    expect(url).toStartWith("https://imgproxy.example.test/");
-    expect(url).toContain("/rs:fit:800:600:f/");
-    expect(url).not.toContain("posts/notebook.jpg");
+    expect(url).toBe(
+      "https://imgproxy.example.test/7mMFm_MUHPs6l8EyhHLShCywI1JMiN-b44YmHgmmUIE/f:webp/q:82/rs:fit:800:600:f/czM6Ly9qb3VybmFsL3Bvc3RzL25vdGVib29rLmpwZw",
+    );
   });
 
   test("rejects absolute storage paths", () => {

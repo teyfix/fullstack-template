@@ -1,13 +1,10 @@
 # syntax=docker/dockerfile:1
 
-ARG BUN_IMAGE=oven/bun:1.3.14-alpine
+ARG BUN_IMAGE=oven/bun:1.4-alpine
 
 FROM ${BUN_IMAGE} AS dependencies
-WORKDIR /workspace
-# Transitional named build context while @teyfix/drizzle is a local file link.
-COPY --from=drizzle . /workspace/drizzle
-COPY package.json bun.lock tsconfig.json /workspace/node-utils/
 WORKDIR /workspace/node-utils
+COPY package.json bun.lock tsconfig.json ./
 RUN bun install --frozen-lockfile
 
 FROM dependencies AS source

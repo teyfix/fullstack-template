@@ -41,9 +41,11 @@ PostgreSQL, Redis, and S3-compatible transports use Bun's built-in `SQL`,
 `RedisClient`, and `S3Client`. Each server-only module exports one
 application-owned instance; JavaScript module caching handles its lifetime.
 
-Avoid `pg`, `ioredis`, and AWS S3 SDKs unless a documented missing Bun
-capability justifies the extra dependency. PGlite remains a test adapter, not a
-production client.
+Runtime capabilities already provided by Bun, including cryptography and basic
+image operations, must remain Bun-native. Do not add `pg`, `ioredis`, an AWS
+SDK, or another third-party client. If Bun lacks a required capability, stop
+and notify the operator instead of installing a fallback client. PGlite remains
+an isolated test database, not a production client.
 
 ## Images and object storage
 
@@ -51,8 +53,9 @@ MinIO owns development object storage. `minio-init` creates the application and
 public buckets idempotently. imgproxy joins the MinIO network and allows only
 the configured `s3://<bucket>/` source.
 
-The server image backend signs a URL from a validated bucket-relative key. The
-Solid `Picture` component receives only the resolved serializable image model.
+The server image backend signs a URL from a validated bucket-relative key with
+Bun's native cryptography. The Solid `Picture` component receives only the
+resolved serializable image model.
 Switching to ImageKit changes this backend binding, not blog/profile call sites.
 Keep `IMGPROXY_KEY` and `IMGPROXY_SALT` server-only.
 
@@ -74,11 +77,8 @@ imgproxy.
 `Dockerfile.bun` installs with the pinned Bun image, runs the normal production
 build, and starts `.output/server/index.mjs` as the non-root Bun user. Private
 environment is mounted as a BuildKit secret; only `VITE_APP_NAME` is a public
-build argument.
-
-While `@teyfix/drizzle` remains a local file dependency, Compose provides the
-sibling repository as a named build context. Remove that transitional context
-after the package is published and the dependency uses a registry version.
+build argument. All dependencies resolve from the application context and
+pinned remote sources; the build does not require sibling repository contexts.
 
 ## Commands
 

@@ -3,7 +3,7 @@
 ## Contents
 
 - [Template contract](#template-contract)
-- [Current blockers](#current-blockers)
+- [Published dependencies](#published-dependencies)
 - [Pre-stable framework risk](#pre-stable-framework-risk)
 - [Standalone release](#standalone-release)
 - [Acceptance test](#acceptance-test)
@@ -20,19 +20,19 @@ message, table/view, seed, admin surface, navigation entry, and extension
 contribution. The concern-specific generated registries are part of that contract; a handwritten
 global import is a deletion leak.
 
-## Current blockers
+## Published dependencies
 
-The template currently resolves `@teyfix/drizzle` as `file:../drizzle`, and
-`Dockerfile.bun` receives that sibling as a named build context. The standalone
-package/repository cannot be released until:
+`@teyfix/drizzle` is published from `github.com/teyfix/drizzle` and pinned to
+the versioned `v0.1.0` tag. The lockfile records that remote source, and the
+container build requires only this repository as its build context. A sibling
+Drizzle checkout is useful for package development but is no longer required to
+install, verify, build, or export this template.
 
-1. `github.com/teyfix/drizzle` is created and authenticated publication access is restored;
-2. `@teyfix/drizzle` is published with its explicit subpath exports;
-3. this package pins a registry version and regenerates `bun.lock`;
-4. the transitional Docker named context is removed.
-
-Do not describe the current checkout as standalone while it requires a sibling
-directory.
+`@teyfix/paraglide-yaml` is installed from its versioned `v0.1.1` GitHub
+release tarball. That artifact contains one minified Bun-targeted module and one
+declaration file; the YAML/ICU compiler's implementation dependencies are
+bundled into the module and do not become application dependencies. A sibling
+compiler checkout is not required.
 
 ## Pre-stable framework risk
 
@@ -58,12 +58,11 @@ and optional services, then:
 1. write validated config and generate fresh secrets locally;
 2. remove optional reference features before the initial migration;
 3. regenerate messages, Paraglide, routes, Better Auth schema, and Drizzle migrations;
-4. install from registry-only dependencies with a fresh lockfile;
+4. install from pinned remote dependencies with a fresh lockfile;
 5. run the complete acceptance gate in an isolated temporary directory.
 
-A GitHub template repository is acceptable after the dependency blocker is
-removed, but it cannot replace name/schema/secret regeneration when those
-values are part of source artifacts.
+A GitHub template repository is now acceptable, but it cannot replace
+name/schema/secret regeneration when those values are part of source artifacts.
 
 ## Acceptance test
 

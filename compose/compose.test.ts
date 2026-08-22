@@ -31,11 +31,20 @@ describe("Compose boundaries", () => {
     expect(compose.services.app?.networks).not.toHaveProperty("net-postgres");
   });
 
-  test("gives the local build an explicit standalone Drizzle context", async () => {
+  test("keeps the application build independent of sibling contexts", async () => {
     const compose = await readCompose("app.yaml");
-    expect(compose.services.app?.build?.additional_contexts).toEqual({
-      drizzle: ["$", "{PWD}/../drizzle"].join(""),
-    });
+    expect(compose.services.app?.build?.additional_contexts).toBeUndefined();
+  });
+
+  test("probes the Bun application over IPv4 in Alpine", async () => {
+    const compose = await readCompose("app.yaml");
+    expect(compose.services.app?.healthcheck?.test).toEqual([
+      "CMD",
+      "wget",
+      "-q",
+      "--spider",
+      "http://127.0.0.1:3000",
+    ]);
   });
 
   test("enables protocol-level prepared statements in transaction pooling", async () => {

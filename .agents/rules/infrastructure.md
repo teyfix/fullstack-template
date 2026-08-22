@@ -21,7 +21,8 @@ description: Configuration exposure, Bun clients, Docker, and service topology.
 ## Clients
 
 - PostgreSQL, Redis, and S3 use Bun's built-in `SQL`, `RedisClient`, and `S3Client`.
-- Do not add `pg`, `ioredis`, or an AWS SDK unless a documented Bun capability gap requires it.
+- Use Bun-native runtime APIs for capabilities Bun already provides, including cryptography and basic image operations.
+- Never install a third-party client to fill a Bun runtime capability gap. Stop and notify the operator when Bun does not provide a required capability.
 - Application-owned module caching provides one client/DB instance; do not introduce a service locator.
 
 ## Compose

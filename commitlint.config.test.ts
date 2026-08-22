@@ -8,10 +8,11 @@ async function lintCommitMessage(message: string): Promise<number> {
   const directory = await mkdtemp(join(tmpdir(), "commitlint-"));
   const messageFile = join(directory, "COMMIT_EDITMSG");
   const commitlint = join(import.meta.dir, "node_modules/.bin/commitlint");
+  const bun = process.execPath;
 
   try {
     await writeFile(messageFile, `${message}\n`);
-    const result = await $`${commitlint} --edit ${messageFile}`
+    const result = await $`${bun} ${commitlint} --edit ${messageFile}`
       .cwd(import.meta.dir)
       .env({ ...process.env, FORCE_COLOR: "0" })
       .quiet()

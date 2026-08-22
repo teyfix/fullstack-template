@@ -1,6 +1,5 @@
 import "@tanstack/solid-start/server-only";
 
-import { generateImageUrl } from "@imgproxy/imgproxy-node";
 import { z } from "zod";
 
 import { ServerConfig } from "~/app/config/server.config";
@@ -19,6 +18,17 @@ export type ImgproxyBackendOptions = Readonly<{
   salt: string;
 }>;
 
+function encodeSource(source: string): string {
+  return Buffer.from(source).toString("base64url");
+}
+
+function signPath(path: string, key: string, salt: string): string {
+  const signer = new Bun.CryptoHasher("sha256", Buffer.from(key, "hex"));
+  signer.update(Buffer.from(salt, "hex"));
+  signer.update(path);
+  return signer.digest("base64url");
+}
+
 export function createImgproxyBackend({
   bucket,
   endpoint,
@@ -28,22 +38,13 @@ export function createImgproxyBackend({
   return {
     url({ height, quality, source, width }) {
       const assetKey = AssetKeySchema.parse(source);
-      return generateImageUrl({
-        endpoint,
-        key,
-        options: {
-          format: "webp",
-          quality,
-          resize: {
-            enlarge: false,
-            height,
-            resizing_type: "fit",
-            width,
-          },
-        },
-        salt,
-        url: `s3://${bucket}/${assetKey}`,
-      });
+      const normalizedEndpoint = endpoint.endsWith("/")
+        ? endpoint.slice(0, -1)
+        : endpoint;
+      const sourceUrl = encodeSource(`s3://${bucket}/${assetKey}`);
+      const path = `/f:webp/q:${quality}/rs:fit:${width}:${height}:f/${sourceUrl}`;
+      const signature = signPath(path, key, salt);
+      return `${normalizedEndpoint}/${signature}${path}`;
     },
   };
 }

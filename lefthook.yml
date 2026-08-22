@@ -28,4 +28,4 @@ pre-push:
     infrastructure:
       run: bun run infra:check
     migrations:
-      run: bun run db:check
+      run: bun --env-file=.env.example run db:check

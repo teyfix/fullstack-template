@@ -21,10 +21,10 @@ foo.tsx     -> foo.test.tsx  (Vitest + Solid Testing Library)
 
 Bun tests cover Zod schemas, feature discovery, generated source rendering,
 server/use-case logic, Drizzle compilation, config, and infrastructure
-adapters. Vitest's jsdom environment covers Solid interaction and accessibility.
-The committed-migration smoke test is the sole exception: it runs PGlite in
-Vitest's Node environment because PGlite 0.5.5 exits Bun 1.3.14 with status 99
-even after a successful clean shutdown.
+adapters. Vitest runs through Bun 1.4: its jsdom environment covers Solid
+interaction and accessibility, while its non-DOM `node` environment isolates
+the committed PGlite migration smoke test. The environment name does not select
+Node.js as the runtime; Node.js is not part of the project toolchain.
 
 When an authored script or test needs shell orchestration, use Bun's `$` tagged
 template with interpolated arguments. Reserve `Bun.spawn` for direct lifecycle

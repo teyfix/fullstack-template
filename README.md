@@ -6,8 +6,10 @@ feature-owned routes, persistence, translations, and contributions. Removing a
 feature folder and regenerating composition removes that feature from the app.
 
 This repository is an application template, not a general utility package.
-Project-agnostic Drizzle helpers have moved to the sibling
-[`@teyfix/drizzle`](../drizzle/README.md) package.
+Project-agnostic Drizzle helpers have moved to the separate
+[`@teyfix/drizzle`](https://github.com/teyfix/drizzle) package.
+Split YAML catalog compilation lives in
+[`@teyfix/paraglide-yaml`](https://github.com/teyfix/paraglide-yaml).
 
 ## Contents
 
@@ -123,7 +125,6 @@ migration is the explicit database-removal step.
 
 TanStack Start is still documented as release-candidate software and the pinned
 Nitro 3 line is beta. Keep exact versions and make the production build part of
-every dependency update. `@teyfix/drizzle` is currently a local
-`file:../drizzle` dependency because its GitHub repository/package has not yet
-been published; consequently this checkout is not yet a standalone distributable
-template. See [`docs/TEMPLATE.md`](docs/TEMPLATE.md).
+every dependency update. `@teyfix/drizzle` is pinned to its versioned GitHub
+release tag so this checkout no longer requires a sibling repository. See
+[`docs/TEMPLATE.md`](docs/TEMPLATE.md).
