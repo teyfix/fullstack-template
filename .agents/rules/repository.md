@@ -50,7 +50,7 @@ Inside `project.inlang`, commit only `settings.json`; the directory-owned
 ## Change discipline
 
 - Prefer official documentation for the exact pinned version and keep executable tests aligned with the intended contract.
-- Prefer Bun's `$` tagged template for authored shell orchestration, with interpolated values rather than assembled command strings. Use `Bun.spawn` only when managing a non-shell child process or its lifecycle directly.
+- Use the shared [Bun process selection](/../memory/.agents/skills/languages/typescript/references/bun.md).
 - Pass `process.env`, not `Bun.env`, to shell/process environment options. Vite augments `Bun.env` with boolean client flags, while child-process environment records accept only strings or `undefined`.
 - Preserve unrelated work. Deleting a feature is intentional only when the request names that feature and the removal migration is reviewed separately.
 - Keep server-only dependencies behind server modules. Browser-reachable code must never import secrets, Bun clients, the database, or Better Auth's server instance.
