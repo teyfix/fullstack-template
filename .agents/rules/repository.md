@@ -1,4 +1,6 @@
 ---
+title: Solid template repository boundaries
+summary: Own the template's source layout, generated artifacts and pinned compiler exception, with shared runtime guidance linked centrally.
 description: Repository scope, dependency boundaries, and generated-source discipline.
 ---
 
@@ -49,8 +51,6 @@ Inside `project.inlang`, commit only `settings.json`; the directory-owned
 
 ## Change discipline
 
-- Prefer official documentation for the exact pinned version and keep executable tests aligned with the intended contract.
-- Use the shared [Bun process selection](/../memory/.agents/skills/languages/typescript/references/bun.md).
-- Pass `process.env`, not `Bun.env`, to shell/process environment options. Vite augments `Bun.env` with boolean client flags, while child-process environment records accept only strings or `undefined`.
-- Preserve unrelated work. Deleting a feature is intentional only when the request names that feature and the removal migration is reviewed separately.
-- Keep server-only dependencies behind server modules. Browser-reachable code must never import secrets, Bun clients, the database, or Better Auth's server instance.
+Follow the current [shared entrypoint](/../memory/AGENTS.md) and [Bun process selection](/../memory/.agents/skills/languages/typescript/references/bun.md). Shared workflow, dependency and server/browser configuration rules live centrally; this file owns the template's boundaries and explicit exceptions.
+
+Deleting a feature is intentional only when the request names that feature and the removal migration is reviewed separately.
